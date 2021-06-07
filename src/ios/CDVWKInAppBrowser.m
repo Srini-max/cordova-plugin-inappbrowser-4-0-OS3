@@ -207,11 +207,20 @@ static CDVWKInAppBrowser* instance = nil;
             NSLog(@"clearsessioncache not available below iOS 11.0");
         }
     }
-
+   
     if (self.inAppBrowserViewController == nil) {
-        NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
-        NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
-        NSString* appendUserAgent = [self settingForKey:@"AppendUserAgent"];
+		NSString* userAgent=@"";
+		NSString* overrideUserAgent =@"";
+		NSString* appendUserAgent=@"";
+		if (browserOptions.isagentmodified != nil && browserOptions.isagentmodified) {
+			userAgent = @"Version/8.0.2 Safari/600.2.5";
+			overrideUserAgent =userAgent;
+			appendUserAgent = userAgent;
+		}else{
+			userAgent = [CDVUserAgentUtil originalUserAgent];
+			overrideUserAgent = userAgent;//[self settingForKey:@"OverrideUserAgent"];
+			appendUserAgent = userAgent;//[self settingForKey:@"AppendUserAgent"];
+		}
         if(overrideUserAgent){
             userAgent = overrideUserAgent;
         }
@@ -225,6 +234,8 @@ static CDVWKInAppBrowser* instance = nil;
             self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
         }
     }
+     
+
     
     [self.inAppBrowserViewController showLocationBar:browserOptions.location];
     [self.inAppBrowserViewController showToolBar:browserOptions.toolbar :browserOptions.toolbarposition];
@@ -729,8 +740,12 @@ BOOL isExiting = FALSE;
 {
     self = [super init];
     if (self != nil) {
+     if (browserOptions.isagentmodified != nil && browserOptions.isagentmodified) {
+        _userAgent = @"Version/8.0.2 Safari/600.2.5";			
+       }else{
         _userAgent = userAgent;
-        _prevUserAgent = prevUserAgent;
+       }        
+       _prevUserAgent = prevUserAgent;
         _browserOptions = browserOptions;
         self.webViewUIDelegate = [[CDVWKInAppBrowserUIDelegate alloc] initWithTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
         [self.webViewUIDelegate setViewController:self];
